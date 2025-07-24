@@ -19,28 +19,22 @@ library(tibbletime)
 ```
 
 
-
 ```{r}
+install.packages("quantmod")
+library(quantmod)
 
-start <- as.numeric(as.POSIXct("2020-01-01", tz="UTC"))
-end   <- as.numeric(Sys.time())
+# 拉取数据
+getSymbols("^RUT", src="yahoo",
+           from=as.Date("2020-01-01"),
+           to=Sys.Date(),
+           auto.assign=TRUE)
 
-start_int <- as.integer(start)
-end_int <- as.integer(end)
-
-symbol <- "^RUT"
-url <- sprintf("https://query1.finance.yahoo.com/v7/finance/download/%s?period1=%d&period2=%d&interval=1d&events=history&includeAdjustedClose=true",
-  symbol, start_int, end_int
-)
-
-
-rut_df <- read.csv(url, stringsAsFactors = FALSE)
-
-
-head(rut_df)
-str(rut_df)
+# RUT 是一个 xts 对象
+head(RUT)
 
 ```
+
+
 ## R Markdown
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
