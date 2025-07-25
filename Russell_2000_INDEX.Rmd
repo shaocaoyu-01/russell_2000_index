@@ -1,16 +1,23 @@
 ---
 title: "Research on Russell_2000"
-author: Samuel Shao
-output: html_document
-          toc: true
-          code_folding: none
+author: "Samuel Shao"
 date: "2025-07-24"
-knitr: 
-  opts_chunks:
+output:
+  html_document:
+    toc: true
+    code_folding: hide
+knitr:
+  opts_chunk:
     echo: false
     message: false
     warning: false
 ---
+
+```{r}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
+
+
+```
 
 
 ```{r}
@@ -19,31 +26,24 @@ library(PerformanceAnalytics)
 library(tibbletime)
 library(DBI)
 library(RSQLite)
-```
 
-
-```{r}
-
+library(zoo, quietly = TRUE, warn.conflicts = FALSE)
+library(xts, quietly = TRUE, warn.conflicts = FALSE)
 # 拉取数据
 getSymbols("^RUT", src="yahoo",
            from=as.Date("2018-01-01"),
            to=Sys.Date(),
            auto.assign=TRUE)
 
-# RUT 是一个 xts 对象
-head(RUT)
 
-```
 
-```{r data conversion}
+
 df <- data.frame(
   date =index(RUT),
   coredata(RUT)
 )
-```
 
 
-```{r plots}
 library(ggplot2)
 ggplot(df,aes(x=date, y=RUT.Adjusted))+
   geom_point(alpha=0.7) +
@@ -51,18 +51,12 @@ ggplot(df,aes(x=date, y=RUT.Adjusted))+
   theme_minimal()
 
 
-```
-
-
-```{r}
 
 chartSeries(RUT, type = "candlesticks",
             name = "Russell 2000 K line chart",
             theme = chartTheme("white"))
 
-```
 
-```{r}
 
 
 
@@ -77,12 +71,6 @@ bb <- BBands(Cl(RUT), n = 20, sd = 2)
 # bb$mavg 就是中轨（20 日简单移动平均）
 
 
-
-```
-
-
-
-```{r}
 
 # 2.1 “跌至中轨买入”：当日最低价触及或跌破中轨，且前一日最低价在中轨之上
 buy_touch_mid <- ifelse(
@@ -108,14 +96,9 @@ signals <- merge(
   buy_signal
 )
 colnames(signals)[4:7] <- c("MidBand","TouchMid","BreakMid","Buy")
-head(signals, 10)
 
 
 
-```
-
-
-```{r}
 library(quantmod)
 
 # 3.1 画 K 线 + 布林带
@@ -128,12 +111,6 @@ addTA(signals$BreakMid * Cl(RUT), on = 1, col = "steelblue", pch = 25, type = "p
 
 
 
-
-
-```
-
-
-```{r}
 library(PerformanceAnalytics)
 
 # 4.1 计算日收益
